@@ -28,7 +28,6 @@ duanix-site/
 │       ├── icone-landing-pages.webp
 │       ├── icone-automacao.webp
 │       ├── icone-ecommerce.webp
-│       ├── icone-ia.webp
 │       ├── logo-quadrado.jpg       Logo quadrado (usado no CSS)
 │       ├── favicon.jpg             Ícone da aba do navegador
 │       └── originais/              Arquivos de origem e versões antigas (não usados no site)

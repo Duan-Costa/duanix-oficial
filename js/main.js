@@ -95,11 +95,12 @@ safe(function(){
   var c=$('#bg'); if(!c||!c.getContext) return;
   var ctx=c.getContext('2d'), w=0,h=0,nodes=[],mx=-9999,my=-9999,running=true,pulses=[],lastP=0;
   function size(){
-    var dpr=Math.min(window.devicePixelRatio||1,2);
+    var compact=window.matchMedia('(max-width: 760px)').matches;
+    var dpr=Math.min(window.devicePixelRatio||1,compact?1.5:2);
     w=window.innerWidth; h=window.innerHeight;
     c.width=w*dpr; c.height=h*dpr;
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    var n=Math.max(28,Math.min(90,Math.round(w*h/16000)));
+    var n=compact?Math.max(20,Math.min(45,Math.round(w*h/30000))):Math.max(28,Math.min(90,Math.round(w*h/16000)));
     nodes=[];
     for(var i=0;i<n;i++) nodes.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.6,vy:(Math.random()-.5)*.6,r:Math.random()*1.4+.6});
   }
@@ -153,7 +154,10 @@ safe(function(){
   function loop(){ if(!running) return; draw(true); requestAnimationFrame(loop); }
   size();
   window.addEventListener('resize',function(){size(); if(reduced) draw(false);});
-  window.addEventListener('pointermove',function(e){mx=e.clientX;my=e.clientY},{passive:true});
+  window.addEventListener('pointermove',function(e){
+    if(e.pointerType!=='mouse') return;
+    mx=e.clientX;my=e.clientY;
+  },{passive:true});
   document.addEventListener('pointerleave',function(){mx=my=-9999});
   document.addEventListener('visibilitychange',function(){
     running=!document.hidden;
@@ -211,6 +215,11 @@ safe(function(){
     header.classList.toggle('scrolled',window.scrollY>12);
   }
   function onScroll(){ if(!ticking){ticking=true; requestAnimationFrame(update);} }
+  function closeMenu(){
+    header.classList.remove('open');
+    burger.setAttribute('aria-expanded','false');
+    burger.setAttribute('aria-label','Abrir menu');
+  }
   window.addEventListener('scroll',onScroll,{passive:true});
   window.addEventListener('resize',function(){movePill(links[current]); update();});
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){movePill(links[current])});
@@ -223,12 +232,11 @@ safe(function(){
   });
   $('#menu').addEventListener('click',function(e){
     if(e.target.closest&&e.target.closest('a')){
-      header.classList.remove('open');
-      burger.setAttribute('aria-expanded','false');
+      closeMenu();
     }
   });
   document.addEventListener('keydown',function(e){
-    if(e.key==='Escape'){header.classList.remove('open'); burger.setAttribute('aria-expanded','false');}
+    if(e.key==='Escape') closeMenu();
   });
 });
 
@@ -266,10 +274,16 @@ safe(function(){
   $('#ano').textContent=new Date().getFullYear();
   $('#form').addEventListener('submit',function(e){
     e.preventDefault();
-    var nome=$('#nome').value.trim(), servico=$('#servico').value, msg=$('#msg').value.trim();
-    if(!nome){$('#nome').focus(); return;}
-    var texto='Olá, sou '+nome+'. Tenho interesse em: '+servico+'.'+(msg?'\n\n'+msg:'');
-    window.open('https://wa.me/5516981420470?text='+encodeURIComponent(texto),'_blank','noopener');
+    var form=$('#form');
+    if(!form.checkValidity()){form.reportValidity();return;}
+    var nome=$('#nome').value.trim(), telefone=$('#telefone').value.trim(), email=$('#email').value.trim();
+    var servico=$('#servico').value, msg=$('#msg').value.trim();
+    var assunto='Pedido de orçamento pelo site - '+nome;
+    var corpo='Olá, gostaria de conversar sobre um projeto.\n\nNome: '+nome+'\nTelefone: '+telefone+'\nE-mail: '+email+'\nServiço de interesse: '+servico+'\n\nMensagem: '+(msg||'Não informada');
+    var gmailUrl='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent('duanixdigital@gmail.com')+'&su='+encodeURIComponent(assunto)+'&body='+encodeURIComponent(corpo);
+    var emailWindow=window.open(gmailUrl,'_blank');
+    if(emailWindow){emailWindow.opener=null;}
+    else{window.location.href='mailto:duanixdigital@gmail.com?subject='+encodeURIComponent(assunto)+'&body='+encodeURIComponent(corpo);}
   });
 });
 
@@ -281,7 +295,6 @@ safe(function(){
   var NS='http://www.w3.org/2000/svg', svg=null;
   function build(){
     if(svg){svg.remove(); svg=null;}
-    if(window.innerWidth<=560) return;
     var cards=[].slice.call(grid.querySelectorAll('.card')); if(cards.length<2) return;
     svg=document.createElementNS(NS,'svg');
     svg.setAttribute('class','net'); svg.setAttribute('aria-hidden','true');
@@ -303,6 +316,7 @@ safe(function(){
       add(d,pts);
     }
     grid.appendChild(svg);
+    grid.classList.add('has-net');
     var s2=svg;
     if('IntersectionObserver' in window){
       var io=new IntersectionObserver(function(es){ if(es[0].isIntersecting){ setTimeout(function(){s2.classList.add('on')},500); io.disconnect(); } },{threshold:.15});
