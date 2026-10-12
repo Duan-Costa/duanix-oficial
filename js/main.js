@@ -271,23 +271,78 @@ safe(function(){
 
 /* ---------- 6. FORMULARIO E RODAPE ---------- */
 safe(function(){
-  $('#ano').textContent=new Date().getFullYear();
-  $('#form').addEventListener('submit',function(e){
+  $('#ano').textContent = new Date().getFullYear();
+
+  $('#form').addEventListener('submit', async function(e){
     e.preventDefault();
-    var form=$('#form');
-    if(!form.checkValidity()){form.reportValidity();return;}
-    var nome=$('#nome').value.trim(), telefone=$('#telefone').value.trim(), email=$('#email').value.trim();
-    var servico=$('#servico').value, msg=$('#msg').value.trim();
-    var assunto='Pedido de orçamento pelo site - '+nome;
-    var corpo='Olá, gostaria de conversar sobre um projeto.\n\nNome: '+nome+'\nTelefone: '+telefone+'\nE-mail: '+email+'\nServiço de interesse: '+servico+'\n\nMensagem: '+(msg||'Não informada');
-    var gmailUrl='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent('duanixdigital@gmail.com')+'&su='+encodeURIComponent(assunto)+'&body='+encodeURIComponent(corpo);
-    var emailWindow=window.open(gmailUrl,'_blank');
-    if(emailWindow){emailWindow.opener=null;}
-    else{window.location.href='mailto:duanixdigital@gmail.com?subject='+encodeURIComponent(assunto)+'&body='+encodeURIComponent(corpo);}
+
+    var form = $('#form');
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    var botao = form.querySelector('button[type="submit"]');
+    var textoOriginal = botao.textContent;
+
+    botao.disabled = true;
+    botao.textContent = 'Enviando...';
+
+    var dados = {
+      nome: $('#nome').value.trim(),
+      telefone: $('#telefone').value.trim(),
+      email: $('#email').value.trim(),
+      servico: $('#servico').value || 'Não informado',
+      mensagem: $('#msg').value.trim() || 'Não informada',
+      _subject: 'Pedido de orçamento pelo site Duanix',
+      _template: 'table',
+      _captcha: 'false'
+    };
+
+    try {
+      var resposta = await fetch(
+        'https://formsubmit.co/ajax/duanixdigital@gmail.com',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(dados)
+        }
+      );
+
+      if (!resposta.ok) {
+        throw new Error('Não foi possível enviar o formulário.');
+      }
+
+      var resultado = await resposta.json();
+
+      if (resultado.success !== 'true' && resultado.success !== true) {
+        throw new Error(
+          typeof resultado.message === 'string'
+            ? resultado.message
+            : 'O serviço não confirmou o envio.'
+        );
+      }
+
+      alert('Pedido enviado! Obrigado por entrar em contato com a Duanix.');
+
+      form.reset();
+
+    } catch (erro) {
+      alert(
+        'Não foi possível enviar agora. Tente novamente ou entre em contato pelo WhatsApp.'
+      );
+      console.error('Erro no formulário:', erro);
+
+    } finally {
+      botao.disabled = false;
+      botao.textContent = textoOriginal;
+    }
   });
 });
-
-})();
 
 /* ---------- CARDS CONECTADOS (computador/tablet) ---------- */
 safe(function(){
@@ -384,3 +439,5 @@ safe(function(){
   build();
   setTimeout(function(){shown=true; if(svg) svg.classList.add('on');},2600);
 });
+
+})();

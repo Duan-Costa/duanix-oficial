@@ -242,22 +242,23 @@
             <input type="email" id="email" name="email" autocomplete="email" placeholder="voce@exemplo.com" required>
           </label>
           <label>Serviço de interesse
-            <select id="servico">
-              <option>Site profissional</option>
-              <option>Landing page</option>
-              <option>E-commerce</option>
-              <option>Manutenção de site</option>
-              <option>Automação</option>
-              <option>Inteligência Artificial (IA)</option>
-              <option>Aplicativo (App)</option>
-              <option>Outro</option>
+            <select id="servico" name="servico" required>
+              <option value="">Selecione uma opção</option>
+              <option value="Site profissional">Site profissional</option>
+              <option value="Landing page">Landing page</option>
+              <option value="E-commerce">E-commerce</option>
+              <option value="Manutenção de site">Manutenção de site</option>
+              <option value="Automação">Automação</option>
+              <option value="Inteligência Artificial (IA)">Inteligência Artificial (IA)</option>
+              <option value="Aplicativo (App)">Aplicativo (App)</option>
+              <option value="Outro">Outro</option>
             </select>
           </label>
           <label>Mensagem
-            <textarea id="msg" placeholder="Conte um pouco sobre o seu negócio e o que você precisa."></textarea>
+            <textarea id="msg" name="mensagem" placeholder="Conte um pouco sobre o seu negócio e o que você precisa." required></textarea>
           </label>
           <button type="submit" class="btn btn-primary">Enviar por e-mail</button>
-          <span class="note">O Gmail abrirá com a mensagem pronta. Confira os dados e clique em Enviar.</span>
+          <span class="note">O envio será realizado em seguida. Se preferir, também pode falar direto pelo WhatsApp.</span>
         </form>
       </div>
     </section>
