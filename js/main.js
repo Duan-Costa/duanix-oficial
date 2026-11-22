@@ -169,7 +169,7 @@ safe(function(){
 /* ---------- 3. TEXTO DIGITADO ---------- */
 safe(function(){
   var el=$('#typed'); if(!el||reduced) return;
-  var words=['sites profissionais','landing pages','e-commerces','automações','soluções com IA','aplicativos'];
+  var words=['atender melhor','divulgar seus serviços','organizar seus processos','automatizar tarefas','crescer com estrutura'];
   var wi=0, ci=words[0].length, del=false;
   function tick(){
     var w=words[wi];
@@ -261,12 +261,115 @@ safe(function(){
   $$('.reveal,.observe').forEach(function(el){io.observe(el)});
 
   document.addEventListener('pointermove',function(e){
-    var card=e.target.closest&&e.target.closest('.card');
+    var card=e.target.closest&&e.target.closest('.card,.faq-item');
     if(!card) return;
     var r=card.getBoundingClientRect();
     card.style.setProperty('--mx',(e.clientX-r.left)+'px');
     card.style.setProperty('--my',(e.clientY-r.top)+'px');
   },{passive:true});
+
+  if(finePointer&&!reduced){
+    $$('.identify-card').forEach(function(card){
+      card.addEventListener('pointermove',function(e){
+        var r=card.getBoundingClientRect();
+        var x=e.clientX-r.left, y=e.clientY-r.top;
+        var rx=((y/r.height-.5)*-8).toFixed(2);
+        var ry=((x/r.width-.5)*10).toFixed(2);
+        card.style.setProperty('--mx',x+'px');
+        card.style.setProperty('--my',y+'px');
+        card.style.transform='translateY(-5px) rotateX('+rx+'deg) rotateY('+ry+'deg)';
+      },{passive:true});
+      card.addEventListener('pointerleave',function(){
+        card.style.transform='';
+      });
+    });
+  }
+});
+
+/* ---------- PORTFÓLIO: SELEÇÃO DE PROJETOS ---------- */
+safe(function(){
+  var tabs=$$('.portfolio-tab'), video=$('.portfolio-video'), source=$('#portfolioVideoSource');
+  var shell=$('.portfolio-video-shell'), kicker=$('#portfolioKicker'), title=$('#portfolioTitle');
+  var description=$('#portfolioDescription'), features=$('#portfolioFeatures'), cta=$('#portfolioCta');
+  if(!tabs.length||!video||!source||!shell||!kicker||!title||!description||!features||!cta) return;
+
+  var projects=[
+    {
+      label:'Cardápio digital',src:'assets/videos/portfolio/kd-lanchonete.mp4',poster:'assets/videos/portfolio/kd-lanchonete.jpg',portrait:true,menuFrame:true,
+      kicker:'Cardápio digital',title:'Cardápio digital da KD Lanchonete',
+      description:'Um cardápio feito para o cliente escolher e pedir sozinho, direto do celular.',
+      features:['Cardápio por categoria, com foto e preço','Monte sua pizza ou seu burger, com o valor atualizado na hora','Pedido sempre à vista e opção de reservar']
+    },
+    {
+      label:'Barbearia',src:'assets/videos/portfolio/barbearia.mp4',poster:'assets/videos/portfolio/barbearia.jpg',
+      kicker:'Site com agendamento',title:'Site para barbearia',
+      description:'Um site que apresenta a barbearia e deixa o cliente agendar sem precisar de uma longa conversa.',
+      features:['Serviços e preços com agendamento em um clique','Clube da Barbearia com planos mensais','Endereço, horários e WhatsApp à vista']
+    },
+    {
+      label:'Farmácia',src:'assets/videos/portfolio/farmacia-vitta.mp4',poster:'assets/videos/portfolio/farmacia-vitta.jpg',
+      kicker:'Site com delivery',title:'Site de farmácia com pedido pelo WhatsApp',
+      description:'Uma apresentação profissional para a farmácia, com o pedido pelo WhatsApp sempre em destaque.',
+      features:['Pedido pelo WhatsApp em destaque','Delivery e horário de atendimento','Mapa para chegar à loja']
+    },
+    {
+      label:'Instituto',src:'assets/videos/portfolio/instituto-fortaleza.mp4',poster:'assets/videos/portfolio/instituto-fortaleza.jpg',
+      kicker:'Site com captação de contatos',title:'Instituto Fortaleza Feminina',
+      description:'Um site que acolhe quem chega e conduz cada visitante para o próximo passo.',
+      features:['Formulário de conversa inicial','Quiz e guia gratuito para captar contatos','Biblioteca de conteúdos e página de compra integrada']
+    },
+    {
+      label:'Música e rádio',src:'assets/videos/portfolio/onplay.mp4',poster:'assets/videos/portfolio/onplay.jpg',
+      kicker:'Portal de conteúdo',title:'ONPLAY: música, rádio e notícias',
+      description:'Um portal para ouvir rádio ao vivo, ver clipes e acompanhar notícias em um só lugar.',
+      features:['Rádio ao vivo com player sempre disponível','Clipes em destaque e notícias','Pedido de música pelo WhatsApp']
+    },
+    {
+      label:'Limpeza',src:'assets/videos/portfolio/limpeza.mp4',poster:'assets/videos/portfolio/limpeza.jpg',
+      kicker:'Site para limpeza residencial',title:'Site para empresa de limpeza',
+      description:'Uma apresentação profissional dos serviços, com acesso rápido para solicitar um orçamento.',
+      features:['Destaque visual para os serviços de limpeza','Botão para solicitar orçamento','Menu com serviços, sobre e contato']
+    },
+    {
+      label:'Loja virtual',src:'assets/videos/video.mp4',poster:'assets/videos/video-poster.jpg',portrait:true,
+      kicker:'Loja virtual',title:'Loja virtual em funcionamento',
+      description:'Uma demonstração de site e loja virtual pensada para o cliente encontrar, escolher e chamar você.',
+      features:['Apresentação profissional da sua marca','Catálogo organizado, com produtos e preços à vista','Contato direto com você em um clique']
+    }
+  ];
+
+  function selectProject(index){
+    var project=projects[index];
+    if(!project) return;
+    video.pause();
+    source.src=project.src;
+    video.poster=project.poster;
+    shell.classList.toggle('is-portrait',!!project.portrait);
+    shell.classList.toggle('is-menu',!!project.menuFrame);
+    video.setAttribute('aria-label','Demonstração: '+project.title);
+    kicker.textContent=project.kicker;
+    title.textContent=project.title;
+    description.textContent=project.description;
+    while(features.firstChild) features.removeChild(features.firstChild);
+    project.features.forEach(function(text){
+      var item=document.createElement('li');
+      item.textContent=text;
+      features.appendChild(item);
+    });
+    cta.href='https://wa.me/5516991901425?text='+encodeURIComponent('Olá, vi o projeto '+project.label+' no site da Duanix e quero algo assim.');
+    tabs.forEach(function(tab,i){
+      var active=i===index;
+      tab.classList.toggle('active',active);
+      tab.setAttribute('aria-pressed',active?'true':'false');
+    });
+    video.load();
+  }
+
+  tabs.forEach(function(tab){
+    tab.addEventListener('click',function(){
+      selectProject(Number(tab.getAttribute('data-project')));
+    });
+  });
 });
 
 /* ---------- 6. FORMULARIO E RODAPE ---------- */
@@ -438,6 +541,27 @@ safe(function(){
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(later);
   build();
   setTimeout(function(){shown=true; if(svg) svg.classList.add('on');},2600);
+});
+
+safe(function(){
+  var button=$('.whatsapp-float'), topButton=$('.back-to-top'), contact=$('#contato');
+  if(topButton){
+    function updateTopButton(){
+      var isVisible=window.scrollY>window.innerHeight;
+      var contactRect=contact&&contact.getBoundingClientRect();
+      var buttonRect=topButton.getBoundingClientRect();
+      topButton.classList.toggle('is-visible',isVisible);
+      topButton.classList.toggle('is-contact-visible',Boolean(isVisible&&contactRect&&contactRect.bottom>buttonRect.top&&contactRect.top<buttonRect.bottom));
+    }
+    window.addEventListener('scroll',updateTopButton,{passive:true});
+    window.addEventListener('resize',updateTopButton);
+    updateTopButton();
+  }
+  if(!contact||!window.IntersectionObserver) return;
+  var observer=new IntersectionObserver(function(entries){
+    if(button) button.classList.toggle('is-contact-visible',entries[0].isIntersecting);
+  },{threshold:0});
+  observer.observe(contact);
 });
 
 })();
